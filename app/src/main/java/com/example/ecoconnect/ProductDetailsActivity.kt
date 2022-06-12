@@ -1,5 +1,6 @@
 package com.example.ecoconnect
 
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.ecoconnect.databinding.ActivityMainBinding
@@ -15,6 +16,13 @@ class ProductDetailsActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        val barcode = intent.getStringExtra("EXTRA_BARCODE")
+        var scannedImg = intent.getParcelableExtra<Bitmap>("EXTRA_PRODUCT_IMG")
+
+        binding.ivPhoto.setImageBitmap(scannedImg)
+        binding.tvScanResult.text = "Barcode: $barcode"
 
     }
+
+
 }

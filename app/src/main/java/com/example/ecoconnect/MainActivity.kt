@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
     private fun onCameraIntentResult(result: ActivityResult?) {
         if(result?.resultCode == Activity.RESULT_OK){
             val scannedImg: Bitmap = result.data!!.extras!!.get("data") as Bitmap
-            setScannedImage(scannedImg)
             readBarcode(scannedImg)
         }
         else{
@@ -65,11 +64,12 @@ class MainActivity : AppCompatActivity() {
         scanner.process(image)
             .addOnSuccessListener { barcodes ->
                 if(barcodes.isEmpty()){
-                    setBarcode("No Barcode Found")
-                    Log.d("getImgBarcode","No barcode found")
+                    Toast.makeText(this,"Barcode Not Found, Please Scan Again", Toast.LENGTH_LONG).show()
                 }
                 else{
-                    barcodes[0]?.rawValue?.let { setBarcode(it) }
+                    barcodes[0]?.rawValue?.let {
+                        sendProductDetails(it,scannedImg)
+                    }
                 }
             }
             .addOnFailureListener {
@@ -77,13 +77,12 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-
-    private fun setBarcode(barcode: String){
-        binding.tvScanResult.text = "Product Barcode: $barcode"
-    }
-
-    private fun setScannedImage(scannedImg: Bitmap){
-        binding.ivPhoto.setImageBitmap(scannedImg)
+    private fun sendProductDetails(barcode: String, scannedImg: Bitmap){
+        Intent(this,ProductDetailsActivity::class.java).also{
+            it.putExtra("EXTRA_PRODUCT_IMG",scannedImg)
+            it.putExtra("EXTRA_BARCODE",barcode)
+            startActivity(it)
+        }
     }
 
     override fun onRequestPermissionsResult(
