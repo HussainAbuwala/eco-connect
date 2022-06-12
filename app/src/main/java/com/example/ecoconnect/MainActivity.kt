@@ -9,14 +9,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.ecoconnect.databinding.ActivityMainBinding
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
@@ -27,14 +25,16 @@ class MainActivity : AppCompatActivity() {
     val camera_intent_registered = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
         onCameraIntentResult(it)
     }
+    private lateinit var binding: ActivityMainBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
-        val btnTakePhoto = findViewById<Button>(R.id.btnTakePhoto)
-
-        btnTakePhoto.setOnClickListener {
+        binding.btnTakePhoto.setOnClickListener {
             if(ContextCompat.checkSelfPermission(this,
                     Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
                 camera_intent_registered.launch(camera_intent)
@@ -65,8 +65,8 @@ class MainActivity : AppCompatActivity() {
         scanner.process(image)
             .addOnSuccessListener { barcodes ->
                 if(barcodes.isEmpty()){
-                    Log.d("getImgBarcode","No barcode found")
                     setBarcode("No Barcode Found")
+                    Log.d("getImgBarcode","No barcode found")
                 }
                 else{
                     barcodes[0]?.rawValue?.let { setBarcode(it) }
@@ -79,13 +79,11 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun setBarcode(barcode: String){
-        val tvScanResult = findViewById<TextView>(R.id.tvScanResult)
-        tvScanResult.text = "Product Barcode: $barcode"
+        binding.tvScanResult.text = "Product Barcode: $barcode"
     }
 
     private fun setScannedImage(scannedImg: Bitmap){
-        val ivPhoto = findViewById<ImageView>(R.id.ivPhoto)
-        ivPhoto.setImageBitmap(scannedImg)
+        binding.ivPhoto.setImageBitmap(scannedImg)
     }
 
     override fun onRequestPermissionsResult(
