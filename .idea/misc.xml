@@ -3,8 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/ic_ecoscore_a.xml" value="0.1715" />
+        <entry key="app/src/main/res/drawable/ic_ecoscore_b.xml" value="0.148" />
+        <entry key="app/src/main/res/drawable/ic_ecoscore_c.xml" value="0.148" />
+        <entry key="app/src/main/res/drawable/ic_ecoscore_d.xml" value="0.148" />
+        <entry key="app/src/main/res/drawable/ic_nova_group_1.xml" value="0.148" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.24166666666666667" />
-        <entry key="app/src/main/res/layout/activity_product_details.xml" value="0.2557291666666667" />
+        <entry key="app/src/main/res/layout/activity_product_details.xml" value="0.1" />
       </map>
     </option>
   </component>
