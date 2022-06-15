@@ -1,11 +1,11 @@
 package com.example.ecoconnect
 
+import android.content.Context
 import android.graphics.Bitmap
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
-import com.example.ecoconnect.databinding.ActivityMainBinding
+import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
 import com.example.ecoconnect.databinding.ActivityProductDetailsBinding
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
@@ -32,15 +32,18 @@ class ProductDetailsActivity : AppCompatActivity() {
         binding.tvScanResult.text = "Barcode: $barcode"
         GlobalScope.launch(Dispatchers.IO) {
             // ...
-            find_product_info("3017620422003")
+            val productInfo = find_product_info("3017620422003")
+            //displayProductInfo(productInfo)
+            withContext(Dispatchers.Main){
+                displayProductInfo(productInfo)
+            }
         }
 
     }
 
-    suspend fun find_product_info(barcode: String?) {
-
+    fun find_product_info(barcode: String?): Product? {
         val client = OkHttpClient()
-        val url = "https://world.openfoodfacts.org/api/v2/product/$barcode.json?fields=packagings,ecoscore_grade"
+        val url = "https://world.openfoodfacts.org/api/v2/product/$barcode.json?fields=packagings,ecoscore_grade,nutriscore_grade,nova_group"
         val request = Request.Builder()
             .url(url)
             .header("Content-Type", "application/json")
@@ -50,18 +53,41 @@ class ProductDetailsActivity : AppCompatActivity() {
         val gson = GsonBuilder().create()
         val result = gson.fromJson(json, Product::class.java)
 
-        result?.product?.ecoscore_grade?.let {
+        return result
+    }
+
+    fun displayProductInfo(productInfo: Product?){
+
+        productInfo?.product?.ecoscore_grade?.let {
             Log.d("find_product_info","Ecoscore_grade: $it")
-            withContext(Dispatchers.Main){
-                Toast.makeText(this@ProductDetailsActivity, "Ecoscore_grade: $it",Toast.LENGTH_LONG).show()
+            if(it == "not-applicable"){
+                setScores("ic_ecoscore_unknown",binding.ivEcoScore)
             }
+            setScores("ic_ecoscore_$it", binding.ivEcoScore)
         }
 
-        result?.product?.packagings?.let {
+        productInfo?.product?.nutriscore_grade?.let {
+            Log.d("find_product_info","nutriscore_grade: $it")
+            setScores("ic_nutriscore_$it",binding.ivNutriScore)
+        }
+
+        productInfo?.product?.nova_group?.let {
+            Log.d("find_product_info","nova_group: $it")
+            setScores("ic_nova_group_$it",binding.ivNovaScore)
+        }
+
+        productInfo?.product?.packagings?.let {
             it.forEach{
                 Log.d("find_product_info","Material: ${it.material}, Recycling: ${it.recycling}, Shape: ${it.shape}")
             }
         }
     }
+
+    fun setScores(scoreString: String, imgView: ImageView, ){
+        val context: Context = imgView.getContext()
+        val id: Int = context.getResources().getIdentifier(scoreString, "drawable", context.getPackageName())
+        imgView.setImageResource(id)
+    }
+
 
 }

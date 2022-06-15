@@ -13,9 +13,10 @@
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.56"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.211" />
 
     <TextView
         android:id="@+id/tvScanResult"
@@ -24,7 +25,44 @@
         android:text=""
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivPhoto" />
+        app:layout_constraintTop_toBottomOf="@+id/ivPhoto"
+        app:layout_constraintVertical_bias="0.687" />
+
+    <ImageView
+        android:id="@+id/ivEcoScore"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        app:layout_constraintBottom_toTopOf="@+id/tvScanResult"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivPhoto"
+        app:layout_constraintVertical_bias="0.158" />
+
+    <ImageView
+        android:id="@+id/ivNutriScore"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginBottom="124dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.192"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivPhoto"
+        app:layout_constraintVertical_bias="0.743" />
+
+    <ImageView
+        android:id="@+id/ivNovaScore"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.849"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivPhoto"
+        app:layout_constraintVertical_bias="0.072" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

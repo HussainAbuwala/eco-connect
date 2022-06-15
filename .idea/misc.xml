@@ -8,8 +8,9 @@
         <entry key="app/src/main/res/drawable/ic_ecoscore_c.xml" value="0.148" />
         <entry key="app/src/main/res/drawable/ic_ecoscore_d.xml" value="0.148" />
         <entry key="app/src/main/res/drawable/ic_nova_group_1.xml" value="0.148" />
+        <entry key="app/src/main/res/drawable/ic_nova_group_unknown.xml" value="0.1405" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.24166666666666667" />
-        <entry key="app/src/main/res/layout/activity_product_details.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_product_details.xml" value="0.25" />
       </map>
     </option>
   </component>
