@@ -4,7 +4,7 @@
     package="com.example.ecoconnect">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -17,13 +17,16 @@
         android:theme="@style/Theme.EcoConnect"
         tools:targetApi="31">
         <activity
-            android:name=".ProductDetailsActivity"
-            android:label="Product Details"
+            android:name=".ObjectDetectActivity"
             android:exported="false" />
         <activity
+            android:name=".ProductDetailsActivity"
+            android:exported="false"
+            android:label="Product Details" />
+        <activity
             android:name=".MainActivity"
-            android:label="Product Scan"
-            android:exported="true">
+            android:exported="true"
+            android:label="Product Scan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

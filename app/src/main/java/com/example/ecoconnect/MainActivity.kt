@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,15 +27,25 @@ class MainActivity : AppCompatActivity() {
         onCameraIntentResult(it)
     }
     private lateinit var binding: ActivityMainBinding
+    private val BARCODE_SCAN_INTENT_TAG = 1
+    private val OBJECT_DETECT_INTENT_TAG = 2
+    private var CURRENT_INTENT_TAG = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+        setBtnListener(binding.btnScanBarcode,BARCODE_SCAN_INTENT_TAG)
+        setBtnListener(binding.btnDetectObject,OBJECT_DETECT_INTENT_TAG)
 
-        binding.btnTakePhoto.setOnClickListener {
+    }
+
+    private fun setBtnListener(btn: Button, intent_tag: Int){
+        btn.setOnClickListener {
+            CURRENT_INTENT_TAG = intent_tag
             if(ContextCompat.checkSelfPermission(this,
                     Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
                 camera_intent_registered.launch(camera_intent)
@@ -42,13 +53,17 @@ class MainActivity : AppCompatActivity() {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 1)
             }
         }
-
     }
 
     private fun onCameraIntentResult(result: ActivityResult?) {
         if(result?.resultCode == Activity.RESULT_OK){
             val scannedImg: Bitmap = result.data!!.extras!!.get("data") as Bitmap
-            readBarcode(scannedImg)
+            if(CURRENT_INTENT_TAG == BARCODE_SCAN_INTENT_TAG){
+                readBarcode(scannedImg)
+            }
+            else{
+                sendObjectImage(scannedImg)
+            }
         }
         else{
             Log.d("onCameraIntentResult","Camera Intent Failed")
@@ -75,6 +90,13 @@ class MainActivity : AppCompatActivity() {
             .addOnFailureListener {
                 Log.d("getImgBarcode","Barcode Reader Failure")
             }
+    }
+
+    private fun sendObjectImage(scannedImg: Bitmap){
+        Intent(this,ObjectDetectActivity::class.java).also{
+            it.putExtra("EXTRA_PRODUCT_IMG",scannedImg)
+            startActivity(it)
+        }
     }
 
     private fun sendProductDetails(barcode: String, scannedImg: Bitmap){
