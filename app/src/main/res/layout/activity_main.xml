@@ -11,8 +11,8 @@
         android:id="@+id/btnScanBarcode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Scan Barcode"
         android:padding="20dp"
+        android:text="Scan Barcode"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnDetectObject"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,12 +22,26 @@
         android:id="@+id/btnDetectObject"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Detect Object"
         android:padding="20dp"
+        android:text="Detect Object"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnScanBarcode"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextBarcode"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:ems="10"
+        android:hint="Enter Barcode"
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
+        android:imeOptions="actionSearch"
+        app:layout_constraintBottom_toTopOf="@+id/btnScanBarcode"
+        app:layout_constraintEnd_toEndOf="@+id/btnDetectObject"
+        app:layout_constraintStart_toStartOf="@+id/btnScanBarcode" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

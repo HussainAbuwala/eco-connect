@@ -4,21 +4,28 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.graphics.Bitmap
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.ecoconnect.databinding.ActivityMainBinding
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,9 +45,23 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
         setBtnListener(binding.btnScanBarcode,BARCODE_SCAN_INTENT_TAG)
         setBtnListener(binding.btnDetectObject,OBJECT_DETECT_INTENT_TAG)
+        setEditTextListener(binding.editTextBarcode)
 
+    }
+
+    private fun setEditTextListener(editText: EditText){
+        editText.setOnEditorActionListener { v, actionId, event ->
+            var handled = false
+            var barcode = v.text.toString()
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                sendProductDetails(barcode, null)
+                handled = true
+            }
+            handled
+        }
     }
 
     private fun setBtnListener(btn: Button, intent_tag: Int){
@@ -99,7 +120,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendProductDetails(barcode: String, scannedImg: Bitmap){
+    private fun sendProductDetails(barcode: String, scannedImg: Bitmap?){
         Intent(this,ProductDetailsActivity::class.java).also{
             it.putExtra("EXTRA_PRODUCT_IMG",scannedImg)
             it.putExtra("EXTRA_BARCODE",barcode)

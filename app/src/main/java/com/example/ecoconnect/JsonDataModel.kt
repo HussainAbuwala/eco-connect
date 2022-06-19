@@ -1,7 +1,7 @@
 package com.example.ecoconnect
 
 // Data Model For Getting Packaging Information
-data class Product(val product: Packaging)
+data class Product(val product: Packaging, val status: Int)
 
 data class Packaging(val packagings: List<PackList>,
                      val nova_group: String,

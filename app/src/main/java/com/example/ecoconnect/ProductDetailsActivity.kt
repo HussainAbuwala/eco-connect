@@ -2,6 +2,7 @@ package com.example.ecoconnect
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
@@ -27,14 +28,16 @@ class ProductDetailsActivity : AppCompatActivity() {
 
         val barcode = intent.getStringExtra("EXTRA_BARCODE")
         var scannedImg = intent.getParcelableExtra<Bitmap>("EXTRA_PRODUCT_IMG")
+        if(scannedImg == null){
+            scannedImg = BitmapFactory.decodeResource(resources, R.drawable.missing_product_image)
+        }
 
-        binding.ivPhoto.setImageBitmap(scannedImg)
-        binding.tvScanResult.text = "Barcode: $barcode"
+        //binding.ivPhoto.setImageBitmap(scannedImg)
+
         GlobalScope.launch(Dispatchers.IO) {
-            // ...
-            val productInfo = find_product_info("3017620422003")
-            //displayProductInfo(productInfo)
+            val productInfo = find_product_info(barcode)
             withContext(Dispatchers.Main){
+                binding.tvScanResult.text = "Barcode: $barcode"
                 displayProductInfo(productInfo)
             }
         }
@@ -58,12 +61,11 @@ class ProductDetailsActivity : AppCompatActivity() {
 
     fun displayProductInfo(productInfo: Product?){
 
-        productInfo?.product?.ecoscore_grade?.let {
-            Log.d("find_product_info","Ecoscore_grade: $it")
-            if(it == "not-applicable"){
-                setScores("ic_ecoscore_unknown",binding.ivEcoScore)
+        productInfo?.status?.let {
+            if(it == 0){
+                val img = BitmapFactory.decodeResource(resources, R.drawable.food_not_found)
+                binding.ivPhoto.setImageBitmap(img)
             }
-            setScores("ic_ecoscore_$it", binding.ivEcoScore)
         }
 
         productInfo?.product?.nutriscore_grade?.let {
@@ -83,7 +85,17 @@ class ProductDetailsActivity : AppCompatActivity() {
         }
     }
 
-    fun setScores(scoreString: String, imgView: ImageView, ){
+    private fun processEcoScore(productInfo: Product?){
+        val x = productInfo?.product?.ecoscore_grade?.let {
+            if(it == "not-applicable"){
+                setScores("ic_ecoscore_unknown",binding.ivEcoScore)
+            }
+            setScores("ic_ecoscore_$it", binding.ivEcoScore)
+        }
+
+    }
+
+    private fun setScores(scoreString: String, imgView: ImageView, ){
         val context: Context = imgView.getContext()
         val id: Int = context.getResources().getIdentifier(scoreString, "drawable", context.getPackageName())
         imgView.setImageResource(id)
