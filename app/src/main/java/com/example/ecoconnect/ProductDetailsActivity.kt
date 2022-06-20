@@ -19,6 +19,9 @@ import okhttp3.Request
 class ProductDetailsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProductDetailsBinding
+    val ecoNutriList = listOf("a","b","c","d","e")
+    val novaList = listOf("1","2","3","4")
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,15 +31,14 @@ class ProductDetailsActivity : AppCompatActivity() {
 
         val barcode = intent.getStringExtra("EXTRA_BARCODE")
         var scannedImg = intent.getParcelableExtra<Bitmap>("EXTRA_PRODUCT_IMG")
-        if(scannedImg == null){
-            scannedImg = BitmapFactory.decodeResource(resources, R.drawable.missing_product_image)
-        }
-
-        //binding.ivPhoto.setImageBitmap(scannedImg)
 
         GlobalScope.launch(Dispatchers.IO) {
             val productInfo = find_product_info(barcode)
             withContext(Dispatchers.Main){
+                if(scannedImg == null){
+                    scannedImg = BitmapFactory.decodeResource(resources, R.drawable.missing_product_image)
+                }
+                binding.ivPhoto.setImageBitmap(scannedImg)
                 binding.tvScanResult.text = "Barcode: $barcode"
                 displayProductInfo(productInfo)
             }
@@ -59,38 +61,45 @@ class ProductDetailsActivity : AppCompatActivity() {
         return result
     }
 
-    fun displayProductInfo(productInfo: Product?){
-
-        productInfo?.status?.let {
-            if(it == 0){
+    fun displayProductInfo(product: Product?){
+        product?.let { product ->
+            if(product.status == 0){
                 val img = BitmapFactory.decodeResource(resources, R.drawable.food_not_found)
                 binding.ivPhoto.setImageBitmap(img)
             }
-        }
-
-        productInfo?.product?.nutriscore_grade?.let {
-            Log.d("find_product_info","nutriscore_grade: $it")
-            setScores("ic_nutriscore_$it",binding.ivNutriScore)
-        }
-
-        productInfo?.product?.nova_group?.let {
-            Log.d("find_product_info","nova_group: $it")
-            setScores("ic_nova_group_$it",binding.ivNovaScore)
-        }
-
-        productInfo?.product?.packagings?.let {
-            it.forEach{
-                Log.d("find_product_info","Material: ${it.material}, Recycling: ${it.recycling}, Shape: ${it.shape}")
+            else{
+                val packaging = product.product
+                processPackaging(packaging)
             }
         }
     }
 
-    private fun processEcoScore(productInfo: Product?){
-        val x = productInfo?.product?.ecoscore_grade?.let {
-            if(it == "not-applicable"){
-                setScores("ic_ecoscore_unknown",binding.ivEcoScore)
-            }
-            setScores("ic_ecoscore_$it", binding.ivEcoScore)
+    private fun processPackaging(packaging: Packaging) {
+
+        val unknown = "unknown"
+        val ecoscore = "ic_ecoscore_"
+        val nutriscore = "ic_nutriscore_"
+        val novascore = "ic_nova_group_"
+
+        if (packaging.ecoscore_grade in ecoNutriList ){
+            setScores("$ecoscore${packaging.ecoscore_grade}", binding.ivEcoScore)
+        }
+        else{
+            setScores("$ecoscore$unknown", binding.ivEcoScore)
+        }
+
+        if (packaging.nutriscore_grade in ecoNutriList ){
+            setScores("$nutriscore${packaging.nutriscore_grade}", binding.ivNutriScore)
+        }
+        else{
+            setScores("$nutriscore$unknown", binding.ivNutriScore)
+        }
+
+        if (packaging.nova_group in novaList ){
+            setScores("$novascore${packaging.nova_group}", binding.ivNovaScore)
+        }
+        else{
+            setScores("$novascore$unknown", binding.ivNovaScore)
         }
 
     }
