@@ -1,6 +1,7 @@
 package com.example.ecoconnect
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Typeface
@@ -39,7 +40,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         var scannedImg = intent.getParcelableExtra<Bitmap>("EXTRA_PRODUCT_IMG")
 
         GlobalScope.launch(Dispatchers.IO) {
-            val productInfo = find_product_info("3017620422003")
+            val productInfo = find_product_info("3080216043807")
             withContext(Dispatchers.Main){
                 if(scannedImg == null){
                     scannedImg = BitmapFactory.decodeResource(resources, R.drawable.missing_product_image)
@@ -102,6 +103,13 @@ class ProductDetailsActivity : AppCompatActivity() {
             packaging.categories_tags.forEach {
                 category.add(it.removePrefix("en:"))
             }
+        }
+
+        Intent(this,DepositLocationsActivity::class.java).also{
+            it.putExtra("EXTRA_SHAPE",shape)
+            it.putExtra("EXTRA_MATERIAL",material)
+            it.putExtra("EXTRA_CATEGORY",category)
+            startActivity(it)
         }
 
     }

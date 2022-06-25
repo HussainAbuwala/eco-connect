@@ -1,5 +1,7 @@
 package com.example.ecoconnect
 
+import android.os.Parcelable
+
 // Data Model For Getting Packaging Information
 data class Product(val product: Packaging, val status: Int)
 
@@ -12,3 +14,11 @@ data class Packaging(val packagings: List<PackList>,
 data class PackList(val material: String,
                     val recycling: String,
                     val shape: String)
+
+data class DepositLocations(val url: String,
+                            val urlTitle: String,
+                            val storeName: String,
+                            val shapeTags: ArrayList<Shape>,
+                            val materialTags: ArrayList<Material>,
+                            val categoryTags: ArrayList<Category>)
+
