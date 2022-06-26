@@ -1,5 +1,6 @@
 package com.example.ecoconnect
 
+
 enum class Shape(val value: String) {
     CONTAINER("container"),
     CAN("can"),

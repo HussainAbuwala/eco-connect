@@ -27,7 +27,7 @@ class DepositLocationsActivity : AppCompatActivity() {
         val shape = intent.getSerializableExtra("EXTRA_SHAPE" ) as ArrayList<String>
         val material = intent.getSerializableExtra( "EXTRA_MATERIAL" ) as ArrayList<String>
         val category = intent.getSerializableExtra( "EXTRA_CATEGORY" ) as ArrayList<String>
-        val dataSource = ArrayList<DepositLocations>()
+        val dataSource = ArrayList<MatchedTags>()
 
         Log.d("DepositLocationsActivit", shape.toString() )
         Log.d("DepositLocationsActivit", material.toString() )
@@ -37,18 +37,28 @@ class DepositLocationsActivity : AppCompatActivity() {
             val depositLocation1 = buildDepositLocation(BEER_STORE_URL, "The BEER Store")
             val depositLocation2 = buildDepositLocation(LCBO_STORE_URL, "LCBO")
 
-            getMatchScore(depositLocation1, shape, material, category)
+            val mScore1 = getMatchScore(depositLocation1, shape, material, category)
+            val mScore2 = getMatchScore(depositLocation2, shape, material, category)
+
+            val matchTag1 = buildMatchedTag(depositLocation1,mScore1)
+            val matchTag2 = buildMatchedTag(depositLocation2,mScore2)
+
             withContext(Dispatchers.Main){
-                dataSource.add(depositLocation1)
-                dataSource.add(depositLocation2)
+                dataSource.add(matchTag1)
+                dataSource.add(matchTag2)
                 binding.lvDepositLocations.adapter = DepositLocationAdapter(this@DepositLocationsActivity,dataSource)
             }
         }
 
     }
 
+    private fun buildMatchedTag(depositLocation: DepositLocations, mTags: Triple<MutableSet<Shape>, MutableSet<Material>, MutableSet<Category>>): MatchedTags {
+        val matchedTag = MatchedTags(mTags.first, mTags.second, mTags.third, depositLocation)
+        return matchedTag
+    }
+
     private fun getMatchScore(locationInfo: DepositLocations, p_shape_tags: ArrayList<String>,
-                              p_material_tags: ArrayList<String>, p_category_tags: ArrayList<String>){
+                              p_material_tags: ArrayList<String>, p_category_tags: ArrayList<String>): Triple<MutableSet<Shape>, MutableSet<Material>, MutableSet<Category>> {
 
         val shapeMatches = mutableSetOf<Shape>()
         if(!locationInfo.shapeTags.isEmpty() && !p_shape_tags.isEmpty()){
@@ -86,6 +96,8 @@ class DepositLocationsActivity : AppCompatActivity() {
         Log.d("getMatchScore",shapeMatches.toString())
         Log.d("getMatchScore",materialMatches.toString())
         Log.d("getMatchScore",categoryMatches.toString())
+
+        return Triple(shapeMatches,materialMatches,categoryMatches)
 
     }
 

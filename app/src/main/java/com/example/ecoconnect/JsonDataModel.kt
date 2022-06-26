@@ -22,3 +22,9 @@ data class DepositLocations(val url: String,
                             val materialTags: ArrayList<Material>,
                             val categoryTags: ArrayList<Category>)
 
+data class MatchedTags(
+    var mShapeTags: Set<Shape>,
+    val mMaterialTags: Set<Material>,
+    val mCategoryTag: Set<Category>,
+    val mDepositLocation: DepositLocations)
+
