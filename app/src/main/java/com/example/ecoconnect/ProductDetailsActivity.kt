@@ -8,7 +8,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity.CENTER_HORIZONTAL
-import android.view.View.TEXT_ALIGNMENT_CENTER
+import android.view.View
 import android.widget.ImageView
 import android.widget.TableRow
 import android.widget.TextView
@@ -16,12 +16,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
 import com.example.ecoconnect.databinding.ActivityProductDetailsBinding
 import com.google.gson.GsonBuilder
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import kotlin.coroutines.EmptyCoroutineContext.get
+
 
 class ProductDetailsActivity : AppCompatActivity() {
 
@@ -40,7 +43,7 @@ class ProductDetailsActivity : AppCompatActivity() {
         var scannedImg = intent.getParcelableExtra<Bitmap>("EXTRA_PRODUCT_IMG")
 
         GlobalScope.launch(Dispatchers.IO) {
-            val productInfo = find_product_info("3080216043807")
+            val productInfo = find_product_info(barcode)
             withContext(Dispatchers.Main){
                 if(scannedImg == null){
                     scannedImg = BitmapFactory.decodeResource(resources, R.drawable.missing_product_image)
@@ -55,7 +58,7 @@ class ProductDetailsActivity : AppCompatActivity() {
 
     fun find_product_info(barcode: String?): Product? {
         val client = OkHttpClient()
-        val url = "https://world.openfoodfacts.org/api/v2/product/$barcode.json?fields=packagings,ecoscore_grade,nutriscore_grade,nova_group,categories_tags"
+        val url = "https://world.openfoodfacts.org/api/v2/product/$barcode.json?fields=packagings,ecoscore_grade,nutriscore_grade,nova_group,categories_tags,image_front_thumb_url"
         val request = Request.Builder()
             .url(url)
             .header("Content-Type", "application/json")
@@ -77,14 +80,30 @@ class ProductDetailsActivity : AppCompatActivity() {
             else{
                 val packaging = product.product
                 if(!packaging.packagings.isEmpty()){
-                    displayPackagingInfo(packaging)
+                    displayProductPackagingInfo(packaging)
                 }
-                processPackaging(packaging)
+                displayProductScore(packaging)
+                displayProductImage(packaging.image_front_thumb_url)
+                binding.btnDepositLocation.setVisibility(View.VISIBLE);
                 binding.btnDepositLocation.setOnClickListener {
                     sendTagInfo(packaging)
                 }
             }
         }
+    }
+
+    private fun displayProductImage(imageFrontSmallUrl: String) {
+        if(imageFrontSmallUrl == null){
+            val scannedImg = BitmapFactory.decodeResource(resources, R.drawable.missing_product_image)
+            binding.ivPhoto.setImageBitmap(scannedImg)
+        }
+        else{
+            Picasso.with(this)
+                .load(imageFrontSmallUrl)
+                .fit()
+                .into(binding.ivPhoto)
+        }
+        Log.d("displayProductImage","$imageFrontSmallUrl")
     }
 
 
@@ -93,17 +112,20 @@ class ProductDetailsActivity : AppCompatActivity() {
         val shape = ArrayList<String>()
         val material = ArrayList<String>()
         val category = ArrayList<String>()
+
         if(!packaging.packagings.isEmpty()){
             packaging.packagings.forEach {
                 shape.add(it.shape.removePrefix("en:"))
                 material.add(it.material.removePrefix("en:"))
             }
         }
-        if(!packaging.categories_tags.isEmpty()){
+
+        if(packaging.categories_tags != null && !packaging.categories_tags.isEmpty()){
             packaging.categories_tags.forEach {
                 category.add(it.removePrefix("en:"))
             }
         }
+
 
         Intent(this,DepositLocationsActivity::class.java).also{
             it.putExtra("EXTRA_SHAPE",shape)
@@ -115,7 +137,7 @@ class ProductDetailsActivity : AppCompatActivity() {
     }
 
 
-    private fun displayPackagingInfo(packaging: Packaging){
+    private fun displayProductPackagingInfo(packaging: Packaging){
 
         val tv1 = getTextView("Shape",Typeface.BOLD_ITALIC)
         val tv2 = getTextView("Material",Typeface.BOLD_ITALIC)
@@ -160,7 +182,7 @@ class ProductDetailsActivity : AppCompatActivity() {
     }
 
 
-    private fun processPackaging(packaging: Packaging) {
+    private fun displayProductScore(packaging: Packaging) {
 
         val unknown = "unknown"
         val ecoscore = "ic_ecoscore_"
@@ -190,7 +212,7 @@ class ProductDetailsActivity : AppCompatActivity() {
 
     }
 
-    private fun setScores(scoreString: String, imgView: ImageView, ){
+    private fun setScores(scoreString: String, imgView: ImageView){
         val context: Context = imgView.getContext()
         val id: Int = context.getResources().getIdentifier(scoreString, "drawable", context.getPackageName())
         imgView.setImageResource(id)

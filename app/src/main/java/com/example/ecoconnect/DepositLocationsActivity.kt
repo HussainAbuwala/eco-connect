@@ -1,9 +1,10 @@
 package com.example.ecoconnect
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.widget.ListView
+import androidx.appcompat.app.AppCompatActivity
 import com.example.ecoconnect.databinding.ActivityDepositLocationsBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -11,11 +12,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
+
 class DepositLocationsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDepositLocationsBinding
     private val BEER_STORE_URL = "https://www.thebeerstore.ca/about-us/environmental-leadership/bag-it-back-odrp/"
     private val LCBO_STORE_URL = "https://www.lcbo.com/content/lcbo/en/corporate-pages/faq.html"
+    private val stores = mutableListOf(Pair(BEER_STORE_URL,"The BEER Store"),
+                                        Pair(LCBO_STORE_URL,"LCBO"))
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,23 +38,35 @@ class DepositLocationsActivity : AppCompatActivity() {
         Log.d("DepositLocationsActivit", category.toString() )
 
         GlobalScope.launch(Dispatchers.IO) {
-            val depositLocation1 = buildDepositLocation(BEER_STORE_URL, "The BEER Store")
-            val depositLocation2 = buildDepositLocation(LCBO_STORE_URL, "LCBO")
 
-            val mScore1 = getMatchScore(depositLocation1, shape, material, category)
-            val mScore2 = getMatchScore(depositLocation2, shape, material, category)
-
-            val matchTag1 = buildMatchedTag(depositLocation1,mScore1)
-            val matchTag2 = buildMatchedTag(depositLocation2,mScore2)
+            buildDataSource(stores,shape,material,category,dataSource)
 
             withContext(Dispatchers.Main){
-                dataSource.add(matchTag1)
-                dataSource.add(matchTag2)
                 binding.lvDepositLocations.adapter = DepositLocationAdapter(this@DepositLocationsActivity,dataSource)
+                binding.lvDepositLocations.setOnItemClickListener { parent, view, position, id ->
+                    val mTag = dataSource[position]
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mTag.mDepositLocation.url))
+                    startActivity(intent)
+                }
             }
         }
 
     }
+
+    private fun buildDataSource(stores: MutableList<Pair<String,String>>,
+                                shape: ArrayList<String>,
+                                material: ArrayList<String>,
+                                category: ArrayList<String>,
+                                dataSource:ArrayList<MatchedTags>){
+
+        stores.forEach {
+            val depositLocation = buildDepositLocation(it.first, it.second)
+            val mScore = getMatchScore(depositLocation, shape, material, category)
+            val matchTag = buildMatchedTag(depositLocation,mScore)
+            dataSource.add(matchTag)
+        }
+    }
+
 
     private fun buildMatchedTag(depositLocation: DepositLocations, mTags: Triple<MutableSet<Shape>, MutableSet<Material>, MutableSet<Category>>): MatchedTags {
         val matchedTag = MatchedTags(mTags.first, mTags.second, mTags.third, depositLocation)
