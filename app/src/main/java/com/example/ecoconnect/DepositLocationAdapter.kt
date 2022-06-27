@@ -30,28 +30,10 @@ class DepositLocationAdapter(context: Context, dataSource: ArrayList<MatchedTags
         return position.toLong()
     }
 
-    private fun getShapeString(shapeTags: Set<Shape>): String {
+    private fun getMatchString(tags: Set<String>, matchString: String): String {
         val builder = StringBuilder()
-        builder.append("Shape Matches: ")
-        shapeTags.forEach {
-            builder.append("$it, ")
-        }
-        return builder.toString()
-    }
-
-    private fun getMaterialString(materialTags: Set<Material>): String {
-        val builder = StringBuilder()
-        builder.append("Material Matches: ")
-        materialTags.forEach {
-            builder.append("$it, ")
-        }
-        return builder.toString()
-    }
-
-    private fun getCategoryString(categoryTags: Set<Category>): String {
-        val builder = StringBuilder()
-        builder.append("Category Matches: ")
-        categoryTags.forEach {
+        builder.append(matchString)
+        tags.forEach {
             builder.append("$it, ")
         }
         return builder.toString()
@@ -76,9 +58,9 @@ class DepositLocationAdapter(context: Context, dataSource: ArrayList<MatchedTags
         tvUrlTitle.text = matchedTag.mDepositLocation.urlTitle
         tvUrl.text = matchedTag.mDepositLocation.url
 
-        tvShapeMTags.text = getShapeString(matchedTag.mShapeTags)
-        tvMaterialMTags.text = getMaterialString(matchedTag.mMaterialTags)
-        tvCategoryTags.text = getCategoryString(matchedTag.mCategoryTag)
+        tvShapeMTags.text = getMatchString(matchedTag.mShapeTags, "Shape Matches: ")
+        tvMaterialMTags.text = getMatchString(matchedTag.mMaterialTags, "Material Matches: ")
+        tvCategoryTags.text = getMatchString(matchedTag.mCategoryTag, "Category Matches: ")
         tvMatchScore.text = "Score: $score"
 
         return rowView

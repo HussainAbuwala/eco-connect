@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.code.gson:gson:2.7")
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation("org.jsoup:jsoup:1.11.3")
     implementation 'com.google.mlkit:object-detection-custom:17.0.0'
