@@ -1,6 +1,5 @@
 package com.example.ecoconnect
 
-import android.R.attr.country
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -9,11 +8,13 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.ecoconnect.databinding.ActivityDepositLocationsBinding
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import java.lang.reflect.Type
 
 
 class DepositLocationsActivity : AppCompatActivity() {
@@ -35,10 +36,6 @@ class DepositLocationsActivity : AppCompatActivity() {
         val material = intent.getSerializableExtra( "EXTRA_MATERIAL" ) as ArrayList<String>
         val category = intent.getSerializableExtra( "EXTRA_CATEGORY" ) as ArrayList<String>
         val dataSource = ArrayList<MatchedTags>()
-
-        Log.d("DepositLocationsActivit", shape.toString() )
-        Log.d("DepositLocationsActivit", material.toString() )
-        Log.d("DepositLocationsActivit", category.toString() )
 
         GlobalScope.launch(Dispatchers.IO) {
 
@@ -90,20 +87,13 @@ class DepositLocationsActivity : AppCompatActivity() {
         val categoryMatches = mutableSetOf<String>()
         findMatch(locationInfo.categoryTags, p_category_tags,categoryMatches)
 
-
-        Log.d("getMatchScore",shapeMatches.toString())
-        Log.d("getMatchScore",materialMatches.toString())
-        Log.d("getMatchScore",categoryMatches.toString())
-
         return Triple(shapeMatches,materialMatches,categoryMatches)
 
     }
 
-    private fun findMatch(locationTags: ArrayList<String>, productTags: ArrayList<String>, shapeMatches: MutableSet<String>): MutableSet<String> {
+    private fun findMatch(locationTags: ArrayList<String>, productTags: ArrayList<String>, matches: MutableSet<String>){
 
-        val matches = mutableSetOf<String>()
-
-        if(!locationTags.isEmpty() && productTags.isEmpty()){
+        if(!locationTags.isEmpty() && !productTags.isEmpty()){
             locationTags.forEach { sTD ->
                 productTags.forEach { sTP ->
                     if(sTP.contains(sTD,true)){
@@ -112,18 +102,25 @@ class DepositLocationsActivity : AppCompatActivity() {
                 }
             }
         }
-
-        return matches
     }
 
 
     private fun buildDepositLocation(url: String, storeName: String): DepositLocations {
 
         val doc = Jsoup.connect(url).get()
+        val title = doc.select("title").text()
+
+        val s_p = getSharedPreferences(storeName, MODE_PRIVATE)
+        if(s_p.contains("SHAPE_TAGS")){
+            Log.d("buildDepositLocation","ffll")
+            val(shape,material,category) = loadDepositLocations(storeName)
+            return DepositLocations(url,title,storeName,shape,material,category)
+        }
+
         val shape = ArrayList<String>()
         val material = ArrayList<String>()
         val category = ArrayList<String>()
-        val title = doc.select("title").text()
+
 
         Shape.values().forEach {
             val matchedElements = doc.select(":containsOwn(${it.value})")
@@ -146,29 +143,59 @@ class DepositLocationsActivity : AppCompatActivity() {
             }
         }
 
-        Log.d("DepositLocationsActivit",shape.toString())
-        Log.d("DepositLocationsActivit",material.toString())
-        Log.d("DepositLocationsActivit",category.toString())
-
-
         val depositLocation = DepositLocations(url,title,storeName,shape,material,category)
-
-
+        saveDepositLocations(depositLocation)
         return depositLocation
 
     }
 
-    private fun saveDepositLocations(){
+    private fun saveDepositLocations(depositLocations: DepositLocations){
 
-        val sharedPref = getSharedPreferences("depositLocationPref", Context.MODE_PRIVATE)
+        val sharedPref = getSharedPreferences(depositLocations.storeName, Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
         val gson = Gson()
-        // country is an enum.
-        // country is an enum.
-        val json_country = gson.toJson(country)
-        editor.apply {
+        val shape_tags_json = gson.toJson(depositLocations.shapeTags)
+        val material_tags_json = gson.toJson(depositLocations.materialTags)
+        val category_tags_json = gson.toJson(depositLocations.categoryTags)
 
+        editor.apply {
+            putString("SHAPE_TAGS",shape_tags_json)
+            putString("MATERIAL_TAGS",material_tags_json)
+            putString("CATEGORY_TAGS",category_tags_json)
+            apply()
         }
+
+    }
+
+    private fun loadDepositLocations(storeName: String): Triple<ArrayList<String>, ArrayList<String>, ArrayList<String>> {
+
+        val sharedPreferences = getSharedPreferences(storeName, MODE_PRIVATE)
+
+        val gson = Gson()
+
+        val shape_json = sharedPreferences.getString("SHAPE_TAGS", null)
+        val material_json = sharedPreferences.getString("MATERIAL_TAGS", null)
+        val category_json = sharedPreferences.getString("CATEGORY_TAGS", null)
+
+        val type: Type = object : TypeToken<ArrayList<String?>?>() {}.type
+
+        var shapeTagArrayList = gson.fromJson<ArrayList<String>>(shape_json, type)
+        var materialTagArrayList = gson.fromJson<ArrayList<String>>(material_json, type)
+        var categoryTagArrayList = gson.fromJson<ArrayList<String>>(category_json, type)
+
+
+        if (shapeTagArrayList == null) {
+            shapeTagArrayList = ArrayList<String>()
+        }
+        if (materialTagArrayList == null) {
+            materialTagArrayList = ArrayList<String>()
+        }
+        if (categoryTagArrayList == null) {
+            categoryTagArrayList = ArrayList<String>()
+        }
+
+        return Triple(shapeTagArrayList,materialTagArrayList,categoryTagArrayList)
+
     }
 
 }

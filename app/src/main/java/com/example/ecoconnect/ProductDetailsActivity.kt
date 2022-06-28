@@ -114,18 +114,23 @@ class ProductDetailsActivity : AppCompatActivity() {
         val category = ArrayList<String>()
 
         if(!packaging.packagings.isEmpty()){
-            packaging.packagings.forEach {
-                shape.add(it.shape.removePrefix("en:"))
-                material.add(it.material.removePrefix("en:"))
+            packaging.packagings.forEach { packList ->
+                packList.shape?.let {
+                    shape.add(it.removePrefix("en:"))
+                }
+                packList.material?.let {
+                    material.add(it.removePrefix("en:"))
+                }
             }
         }
 
-        if(packaging.categories_tags != null && !packaging.categories_tags.isEmpty()){
-            packaging.categories_tags.forEach {
-                category.add(it.removePrefix("en:"))
+        packaging?.categories_tags.let { cat_tags ->
+            if(!cat_tags.isEmpty()){
+                cat_tags.forEach {
+                    category.add(it.removePrefix("en:"))
+                }
             }
         }
-
 
         Intent(this,DepositLocationsActivity::class.java).also{
             it.putExtra("EXTRA_SHAPE",shape)
