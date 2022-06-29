@@ -124,7 +124,8 @@ class ProductDetailsActivity : AppCompatActivity() {
             }
         }
 
-        packaging?.categories_tags.let { cat_tags ->
+        Log.d("sendTagInfo","$packaging")
+        packaging.categories_tags?.let { cat_tags ->
             if(!cat_tags.isEmpty()){
                 cat_tags.forEach {
                     category.add(it.removePrefix("en:"))
