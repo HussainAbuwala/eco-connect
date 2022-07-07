@@ -10,7 +10,6 @@
         android:id="@+id/ivPhoto"
         android:layout_width="150sp"
         android:layout_height="200sp"
-        android:scaleType="centerCrop"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

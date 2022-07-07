@@ -58,7 +58,7 @@ class ProductDetailsActivity : AppCompatActivity() {
 
     fun find_product_info(barcode: String?): Product? {
         val client = OkHttpClient()
-        val url = "https://world.openfoodfacts.org/api/v2/product/$barcode.json?fields=packagings,ecoscore_grade,nutriscore_grade,nova_group,categories_tags,image_front_thumb_url"
+        val url = "https://world.openfoodfacts.org/api/v2/product/$barcode.json?fields=packagings,ecoscore_grade,nutriscore_grade,nova_group,categories_tags,image_url"
         val request = Request.Builder()
             .url(url)
             .header("Content-Type", "application/json")
@@ -83,7 +83,7 @@ class ProductDetailsActivity : AppCompatActivity() {
                     displayProductPackagingInfo(packaging)
                 }
                 displayProductScore(packaging)
-                displayProductImage(packaging.image_front_thumb_url)
+                displayProductImage(packaging.image_url)
                 binding.btnDepositLocation.setVisibility(View.VISIBLE);
                 binding.btnDepositLocation.setOnClickListener {
                     sendTagInfo(packaging)
@@ -100,7 +100,8 @@ class ProductDetailsActivity : AppCompatActivity() {
         else{
             Picasso.with(this)
                 .load(imageFrontSmallUrl)
-                .fit()
+                    .fit()
+                    .centerInside()
                 .into(binding.ivPhoto)
         }
         Log.d("displayProductImage","$imageFrontSmallUrl")
