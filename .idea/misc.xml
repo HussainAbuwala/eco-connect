@@ -13,6 +13,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.24166666666666667" />
         <entry key="app/src/main/res/layout/activity_object_detect.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_product_details.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_user_in_the_loop.xml" value="0.25" />
         <entry key="app/src/main/res/layout/row_deposit_location.xml" value="0.335" />
       </map>
     </option>

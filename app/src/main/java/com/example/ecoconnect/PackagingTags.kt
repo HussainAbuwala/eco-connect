@@ -17,13 +17,14 @@ enum class Shape(val value: String) {
 }
 
 enum class Material(val value: String) {
-    METAL("metal"),
-    ALUMINIUM("aluminium"),
-    GLASS("glass"),
-    PLASTIC("plastic"),
-    CARDBOARD("cardboard"),
+    METAL("Metal"),
+    ALUMINIUM("Aluminium"),
+    GLASS("Glass"),
+    PLASTIC("Plastic"),
+    CARDBOARD("Cardboard"),
     PP("Polypropylene"),
-    PET("Polyethylene terephthalate")
+    PET("Polyethylene terephthalate"),
+    PAPER("Paper")
 }
 
 enum class Category(val value: String) {

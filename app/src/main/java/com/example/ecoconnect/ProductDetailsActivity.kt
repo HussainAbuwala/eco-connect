@@ -84,8 +84,8 @@ class ProductDetailsActivity : AppCompatActivity() {
                 }
                 displayProductScore(packaging)
                 displayProductImage(packaging.image_url)
-                binding.btnDepositLocation.setVisibility(View.VISIBLE);
-                binding.btnDepositLocation.setOnClickListener {
+                binding.btnNext.setVisibility(View.VISIBLE);
+                binding.btnNext.setOnClickListener {
                     sendTagInfo(packaging)
                 }
             }
@@ -134,12 +134,50 @@ class ProductDetailsActivity : AppCompatActivity() {
             }
         }
 
-        Intent(this,DepositLocationsActivity::class.java).also{
-            it.putExtra("EXTRA_SHAPE",shape)
-            it.putExtra("EXTRA_MATERIAL",material)
-            it.putExtra("EXTRA_CATEGORY",category)
+
+        val(shapeMatches, materialMatches, categoryMatches) = getTagMatches(shape,material,category)
+
+
+        Intent(this,UserInTheLoopActivity::class.java).also{
+            it.putExtra("EXTRA_SHAPE",shapeMatches)
+            it.putExtra("EXTRA_MATERIAL",materialMatches)
+            it.putExtra("EXTRA_CATEGORY",categoryMatches)
             startActivity(it)
         }
+
+    }
+
+
+    private fun getTagMatches(shape: ArrayList<String>, material: ArrayList<String>, category: ArrayList<String>): Triple<ArrayList<String>, ArrayList<String>, ArrayList<String>> {
+        var shapeMatches = mutableSetOf<String>()
+        val materialMatches = mutableSetOf<String>()
+        val categoryMatches = mutableSetOf<String>()
+
+        Shape.values().forEach { sTD ->
+            shape.forEach { sTP ->
+                if(sTP.contains(sTD.value,true)){
+                    shapeMatches.add(sTD.value)
+                }
+            }
+        }
+
+        Material.values().forEach { sTD ->
+            material.forEach { sTP ->
+                if(sTP.contains(sTD.value,true)){
+                    materialMatches.add(sTD.value)
+                }
+            }
+        }
+
+        Category.values().forEach { sTD ->
+            category.forEach { sTP ->
+                if(sTP.contains(sTD.value,true)){
+                    categoryMatches.add(sTD.value)
+                }
+            }
+        }
+
+        return Triple(ArrayList(shapeMatches), ArrayList(materialMatches), ArrayList(categoryMatches))
 
     }
 
