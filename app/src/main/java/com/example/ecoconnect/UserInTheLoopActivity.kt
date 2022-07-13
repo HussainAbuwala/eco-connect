@@ -39,7 +39,7 @@ class UserInTheLoopActivity : AppCompatActivity() {
 
         setDropDownMenuListeners(binding.txtShapeD,shapeItems,shapeBool,"Select Shapes")
         setDropDownMenuListeners(binding.txtMaterialD,materialItems,materialBool,"Select Materials")
-        setDropDownMenuListeners(binding.txtCategoryD,categoryItems,categoryBool,"Select Cateogries")
+        setDropDownMenuListeners(binding.txtCategoryD,categoryItems,categoryBool,"Select Categories")
 
         binding.button.setOnClickListener {
 

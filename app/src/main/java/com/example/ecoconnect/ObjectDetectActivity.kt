@@ -1,6 +1,7 @@
 package com.example.ecoconnect
 
 import android.R
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
@@ -19,6 +20,7 @@ import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions
 class ObjectDetectActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityObjectDetectBinding
+    private val categoryObjectDetect = mutableListOf<String>("cardboard", "glass", "metal", "paper", "plastic", "trash")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,18 +57,49 @@ class ObjectDetectActivity : AppCompatActivity() {
             if(!results.isEmpty()){
                 displayClassifyResults(results)
             }
+            else{
+                setBtnListener(null)
+            }
         }
     }
 
     private fun displayClassifyResults(results: List<DetectedObject>) {
         val detectedObject = results[0]
+        val allConfidences = ArrayList<Pair<Int,Float>>()
         for (label in detectedObject.labels) {
             val text = label.text
             val index = label.index
             val confidence = label.confidence
+            allConfidences.add(Pair(index,confidence))
             setProgressBarValue(index,confidence)
 
-            Log.d("CLASSIFICATION","text: $text, index: $index, confidence: $confidence")
+        }
+
+        val materialMatch = categoryObjectDetect[allConfidences[0].first]
+        setBtnListener(materialMatch)
+
+    }
+
+    private fun setBtnListener(materialMatch:String?){
+        binding.btnObjDetectNext.setOnClickListener{
+            sendObjectDetectInfo(materialMatch)
+        }
+    }
+
+    private fun sendObjectDetectInfo(material : String?){
+
+        val shapeMatches = ArrayList<String>()
+        val materialMatches = ArrayList<String>()
+        if (material != null) {
+            materialMatches.add(material)
+        }
+        val categoryMatches = ArrayList<String>()
+
+        Intent(this,UserInTheLoopActivity::class.java).also{
+            it.putExtra("EXTRA_SHAPE",shapeMatches)
+            it.putExtra("EXTRA_MATERIAL",materialMatches)
+            it.putExtra("EXTRA_CATEGORY",categoryMatches)
+            startActivity(it)
         }
     }
 
