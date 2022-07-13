@@ -13,18 +13,23 @@ enum class Shape(val value: String) {
     JAR("jar"),
     CLAMSHELL("clamshell"),
     POUCH("pouch"),
-    GABLETOP("gable top")
+    GABLETOP("gable top"),
+    JUG("jug"),
+    BRICK("brick"),
+    BRIK("brik")
 }
 
 enum class Material(val value: String) {
-    METAL("Metal"),
-    ALUMINIUM("Aluminium"),
-    GLASS("Glass"),
-    PLASTIC("Plastic"),
-    CARDBOARD("Cardboard"),
-    PP("Polypropylene"),
-    PET("Polyethylene terephthalate"),
-    PAPER("Paper")
+    METAL("metal"),
+    ALUMINIUM("aluminium"),
+    TIN("tin"),
+    GLASS("glass"),
+    PLASTIC("plastic"),
+    CARDBOARD("cardboard"),
+    PP("polypropylene"),
+    PET("polyethylene terephthalate"),
+    PAPER("paper"),
+    TETRA("tetra")
 }
 
 enum class Category(val value: String) {

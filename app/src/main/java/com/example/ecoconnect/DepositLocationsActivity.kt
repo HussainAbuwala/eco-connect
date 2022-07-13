@@ -20,11 +20,7 @@ import java.lang.reflect.Type
 class DepositLocationsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDepositLocationsBinding
-    private val BEER_STORE_URL = "https://www.thebeerstore.ca/about-us/environmental-leadership/bag-it-back-odrp/"
-    private val LCBO_STORE_URL = "https://www.lcbo.com/content/lcbo/en/corporate-pages/faq.html"
-    private val stores = mutableListOf(Pair(BEER_STORE_URL,"The BEER Store"),
-                                        Pair(LCBO_STORE_URL,"LCBO"))
-
+    private val stores = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,11 +31,13 @@ class DepositLocationsActivity : AppCompatActivity() {
         val shape = intent.getSerializableExtra("EXTRA_SHAPE" ) as ArrayList<String>
         val material = intent.getSerializableExtra( "EXTRA_MATERIAL" ) as ArrayList<String>
         val category = intent.getSerializableExtra( "EXTRA_CATEGORY" ) as ArrayList<String>
-        val dataSource = ArrayList<MatchedTags>()
+        var dataSource = ArrayList<MatchedTags>()
 
         GlobalScope.launch(Dispatchers.IO) {
 
+            readLocationURLs(stores)
             buildDataSource(stores,shape,material,category,dataSource)
+            dataSource.sortByDescending { it.mScore }
 
             withContext(Dispatchers.Main){
                 binding.lvDepositLocations.adapter = DepositLocationAdapter(this@DepositLocationsActivity,dataSource)
@@ -53,14 +51,30 @@ class DepositLocationsActivity : AppCompatActivity() {
 
     }
 
-    private fun buildDataSource(stores: MutableList<Pair<String,String>>,
+    private fun readLocationURLs(stores: MutableList<String>){
+        assets.open("urls").bufferedReader().forEachLine {
+            stores.add(it)
+        }
+    }
+
+    private fun getStoreName(url: String): String {
+        val start_index = url.indexOf('.')
+        val end_index = url.indexOf('.',start_index + 1)
+        return url.substring(start_index + 1,end_index)
+    }
+
+    private fun buildDataSource(stores: MutableList<String>,
                                 shape: ArrayList<String>,
                                 material: ArrayList<String>,
                                 category: ArrayList<String>,
                                 dataSource:ArrayList<MatchedTags>){
 
         stores.forEach {
-            val depositLocation = buildDepositLocation(it.first, it.second)
+            val line = it.trim().split(",").toMutableList()
+            val storeURL = line[0]
+            val locationURL = line[1]
+            val storeName = getStoreName(it)
+            val depositLocation = buildDepositLocation(storeURL, storeName, locationURL)
             val mScore = getMatchScore(depositLocation, shape, material, category)
             val matchTag = buildMatchedTag(depositLocation,mScore)
             dataSource.add(matchTag)
@@ -69,7 +83,8 @@ class DepositLocationsActivity : AppCompatActivity() {
 
 
     private fun buildMatchedTag(depositLocation: DepositLocations, mTags: Triple<MutableSet<String>, MutableSet<String>, MutableSet<String>>): MatchedTags {
-        val matchedTag = MatchedTags(mTags.first, mTags.second, mTags.third, depositLocation)
+        val score = mTags.first.size + mTags.second.size + mTags.third.size
+        val matchedTag = MatchedTags(mTags.first, mTags.second, mTags.third, score, depositLocation)
         return matchedTag
     }
 
@@ -105,16 +120,16 @@ class DepositLocationsActivity : AppCompatActivity() {
     }
 
 
-    private fun buildDepositLocation(url: String, storeName: String): DepositLocations {
+    private fun buildDepositLocation(storeURL: String, storeName: String, storeLocationURL: String): DepositLocations {
 
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(storeURL).get()
         val title = doc.select("title").text()
 
         val s_p = getSharedPreferences(storeName, MODE_PRIVATE)
         if(s_p.contains("SHAPE_TAGS")){
             Log.d("buildDepositLocation","ffll")
             val(shape,material,category) = loadDepositLocations(storeName)
-            return DepositLocations(url,title,storeName,shape,material,category)
+            return DepositLocations(storeURL,title,storeName,storeLocationURL,shape,material,category)
         }
 
         val shape = ArrayList<String>()
@@ -143,7 +158,7 @@ class DepositLocationsActivity : AppCompatActivity() {
             }
         }
 
-        val depositLocation = DepositLocations(url,title,storeName,shape,material,category)
+        val depositLocation = DepositLocations(storeURL,title,storeName,storeLocationURL,shape,material,category)
         saveDepositLocations(depositLocation)
         return depositLocation
 

@@ -19,6 +19,7 @@ data class PackList(val material: String,
 data class DepositLocations(val url: String,
                             val urlTitle: String,
                             val storeName: String,
+                            val locationURL: String,
                             val shapeTags: ArrayList<String>,
                             val materialTags: ArrayList<String>,
                             val categoryTags: ArrayList<String>)
@@ -27,5 +28,6 @@ data class MatchedTags(
     var mShapeTags: Set<String>,
     val mMaterialTags: Set<String>,
     val mCategoryTag: Set<String>,
+    val mScore: Int,
     val mDepositLocation: DepositLocations)
 

@@ -1,11 +1,15 @@
 package com.example.ecoconnect
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.Button
 import android.widget.TextView
+import androidx.core.content.ContextCompat.startActivity
 
 class DepositLocationAdapter(context: Context, dataSource: ArrayList<MatchedTags>) : BaseAdapter() {
 
@@ -52,7 +56,6 @@ class DepositLocationAdapter(context: Context, dataSource: ArrayList<MatchedTags
         val tvMaterialMTags =  rowView.findViewById(R.id.tvMaterialMTags) as TextView
         val tvCategoryTags =  rowView.findViewById(R.id.tvCategoryTags) as TextView
         val tvMatchScore = rowView.findViewById(R.id.tvMatchScore) as TextView
-        val score = matchedTag.mShapeTags.size + matchedTag.mMaterialTags.size + matchedTag.mCategoryTag.size
 
         tvStoreName.text = matchedTag.mDepositLocation.storeName
         tvUrlTitle.text = matchedTag.mDepositLocation.urlTitle
@@ -61,7 +64,17 @@ class DepositLocationAdapter(context: Context, dataSource: ArrayList<MatchedTags
         tvShapeMTags.text = getMatchString(matchedTag.mShapeTags, "Shape Matches: ")
         tvMaterialMTags.text = getMatchString(matchedTag.mMaterialTags, "Material Matches: ")
         tvCategoryTags.text = getMatchString(matchedTag.mCategoryTag, "Category Matches: ")
-        tvMatchScore.text = "Score: $score"
+        tvMatchScore.text = "Score: ${matchedTag.mScore}"
+
+        val locationURL = matchedTag.mDepositLocation.locationURL
+        if(!locationURL.isEmpty()){
+            val btnNearbyLocations = rowView.findViewById(R.id.btnNearbyLocations) as Button
+            btnNearbyLocations.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(locationURL))
+                startActivity(lvContext,intent,null)
+            }
+        }
+
 
         return rowView
     }
